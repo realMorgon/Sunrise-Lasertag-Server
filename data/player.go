@@ -2,6 +2,7 @@ package data
 
 import (
 	"fmt"
+	"strconv"
 )
 
 type Player interface {
@@ -26,11 +27,8 @@ func NewPlayer(vest_id int) Player {
 
 func (p *player) DealDamage(damage int) {
 	var old_hp = p.Hit_points
-	p.Hit_points = p.Hit_points - damage
-	if p.Hit_points < 0 {
-		p.Hit_points = 0
-	}
-	fmt.Println("Reduced Hit Points from %i to %i", old_hp, p.Hit_points)
+	p.Hit_points = max(p.Hit_points-damage, 0)
+	fmt.Println("Reduced Hit Points from " + strconv.Itoa(old_hp) + " to " + strconv.Itoa(p.Hit_points))
 }
 
 func (p *player) GetHealth() int {

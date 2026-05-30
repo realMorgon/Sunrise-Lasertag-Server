@@ -5,25 +5,25 @@ import (
 )
 
 type Device interface {
-	GetTime() int
+	GetTimeDifference() int64
 	GetType() string
 }
 
 type device struct {
-	Time int
+	Time int64
 	Type string
 }
 
-func NewDevice(time int, deviceType string) Device {
+func NewDevice(timeDifference int64, deviceType string) Device {
 	d := &device{
-		Time: time,
+		Time: timeDifference,
 		Type: deviceType,
 	}
 	fmt.Println("Neues Gerät erstellt: Time =", d.Time, ", Type =", d.Type)
 	return d
 }
 
-func (d *device) GetTime() int {
+func (d *device) GetTimeDifference() int64 {
 	return d.Time
 }
 
