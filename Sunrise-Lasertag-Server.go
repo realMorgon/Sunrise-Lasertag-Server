@@ -17,7 +17,7 @@ var startTime = time.Now().UnixMilli()
 func main() {
 
 	fmt.Println("Beep boop beep beep boop...")
-	fmt.Println("Game started at " + time.Now().String() + " which is equal to " + strconv.FormatInt(startTime, 10) + " mills")
+	fmt.Println("Server started at " + time.Now().String() + " which is equal to " + strconv.FormatInt(startTime, 10) + " mills")
 
 	router := gin.Default()
 
@@ -54,8 +54,8 @@ func main() {
 		clientTime := int64(time)
 		c.String(200, "Du hast ID: "+strconv.Itoa(clientId)+" und TIME: "+strconv.Itoa(int(clientTime))+" (Clienttime) als Schuss gesendet")
 
-		gametime := calculateTime(clientId, clientTime)
-		fmt.Println("ID: " + strconv.Itoa(clientId) + " schießt bei " + strconv.FormatInt(gametime, 10) + " mills")
+		servertime := calculateTime(clientId, clientTime)
+		fmt.Println("ID: " + strconv.Itoa(clientId) + " schießt bei " + strconv.FormatInt(servertime, 10) + " mills")
 	})
 
 	router.POST("/api/hit/recieve", func(c *gin.Context) {
@@ -65,8 +65,8 @@ func main() {
 		clientTime := int64(time)
 		c.String(200, "Du hast EIGENE_ID: "+strconv.Itoa(clientId)+", FREMDE_ID: "+strconv.Itoa(hitertId)+" und TIME: "+strconv.Itoa(int(clientTime))+" (Clienttime) als Treffer gesendet")
 
-		gametime := calculateTime(clientId, clientTime)
-		fmt.Println("ID: " + strconv.Itoa(clientId) + " wurde von ID: " + strconv.Itoa(hitertId) + " bei " + strconv.FormatInt(gametime, 10) + " mills getroffen")
+		servertime := calculateTime(clientId, clientTime)
+		fmt.Println("ID: " + strconv.Itoa(clientId) + " wurde von ID: " + strconv.Itoa(hitertId) + " bei " + strconv.FormatInt(servertime, 10) + " mills getroffen")
 
 		players[clientId].DealDamage(1)
 	})
