@@ -19,26 +19,28 @@ echo "Beep boop beep beep boop"
 echo "----- ----- -----"
 echo ""
 
-echo "===== HOTSPOT ====="
-read -p "SSID [LaserTag]: " SSID
-SSID=${SSID:-LaserTag}
-
-read -p "Passwort: " PASSWORD
-
-read -p "Server-IP [192.168.4.1]: " SERVER_IP
-SERVER_IP=${SERVER_IP:-192.168.4.1}
-
-read -p "IP-Range, untere Grenze [192.168.4.10]: " IP_RANGE_LOW
-IP_RANGE_LOW=${IP_RANGE_LOW:-192.168.4.10}
-
-read -p "IP-Range, obere Grenze [192.168.4.254]: " IP_RANGE_HIGH
-IP_RANGE_HIGH=${IP_RANGE_HIGH:-192.168.4.254}
 
 # Hotspot
 if systemctl is-active --quiet hostapd; then
     echo "hostapd ist bereits aktiv. Überspringe die Einrichtung."
     echo "Sollte das ein Fehler sein, deaktiviere hostapd und starte das Setup erneut."
+    echo ""
 else
+    echo "===== HOTSPOT ====="
+    read -p "SSID [LaserTag]: " SSID
+    SSID=${SSID:-LaserTag}
+
+    read -p "Passwort: " PASSWORD
+
+    read -p "Server-IP [192.168.4.1]: " SERVER_IP
+    SERVER_IP=${SERVER_IP:-192.168.4.1}
+
+    read -p "IP-Range, untere Grenze [192.168.4.10]: " IP_RANGE_LOW
+    IP_RANGE_LOW=${IP_RANGE_LOW:-192.168.4.10}
+
+    read -p "IP-Range, obere Grenze [192.168.4.254]: " IP_RANGE_HIGH
+    IP_RANGE_HIGH=${IP_RANGE_HIGH:-192.168.4.254}
+
     echo "Netzwerk wird eingerichtet..."
 
     # 1. Paketquellen aktualisieren und hostapd + dnsmasq (für IPs) installieren
@@ -91,7 +93,6 @@ if [ -f "$SCRIPT_DIR/.env" ]; then
     echo "Sollte das nicht der Fall sein, lösche die .env Datei und starte das Setup erneut."
     echo "Stelle auch sicher, dass es keine PostgreSQL Datenbank und keinen Datenbank-Nutzer gibt."
     echo "Bestehende Daten werden nach dem Setup nicht mehr berücksichtigt."
-    exit 0
 else
 
     echo "#.env" > "$SCRIPT_DIR/.env"
@@ -118,6 +119,9 @@ else
     sudo -u postgres psql -c "CREATE DATABASE $DB_NAME OWNER $DB_USER;"
     sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE $DB_NAME TO $DB_USER;"
 fi
+
+sudo apt update
+sudo apt install -y golang
 
 echo ""
 echo "/===== SETUP BEENDET =====/"
