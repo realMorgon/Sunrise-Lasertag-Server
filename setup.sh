@@ -93,7 +93,7 @@ dhcp-range=$IP_RANGE_LOW,$IP_RANGE_HIGH,255.255.255.0,12h
 EOF
 
     # 7. softlock ausstellen
-
+    echo 'SUBSYSTEM=="rfkill", ATTR{type}=="wlan", ATTR{state}="1"' | sudo tee /etc/udev/rules.d/60-ur-rfkill.rules > /dev/null
 
     # 8. Dienste aktivieren und starten
     sudo systemctl unmask hostapd
