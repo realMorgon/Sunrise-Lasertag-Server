@@ -47,20 +47,34 @@ else
     sudo apt update
     sudo apt install -y hostapd dnsmasq
 
-    # 2. Andere Netzwerk-Dienste stoppen
-    sudo systemctl stop NetworkManager dhcpcd 2>/dev/null
-    sudo systemctl disable NetworkManager dhcpcd 2>/dev/null
+    # 2. NetworkManager anweisen, wlan0 zu ignorieren (LAN bleibt aktiv!)
+    sudo tee /etc/NetworkManager/conf.d/99-disable-wlan0.conf > /dev/null << 'EOF'
+[keyfile]
+unmanaged-devices=interface-name:wlan0
+EOF
+    sudo systemctl reload NetworkManager
 
-    # 3. WLAN-Karte eine feste IP geben
-    sudo ip addr add $SERVER_IP/24 dev wlan0 2>/dev/null
+    # 3. DNS-Konflikt auf Port 53 lösen (systemd-resolved deaktivieren)
+    sudo systemctl stop systemd-resolved 2>/dev/null
+    sudo systemctl disable systemd-resolved 2>/dev/null
 
-    # 4. hostapd Konfiguration schreiben (Das WLAN-Netz)
+    # 4. WLAN-Karte eine feste IP geben
+    sudo tee /etc/network/interfaces.d/wlan0 > /dev/null << EOF
+allow-hotplug wlan0
+iface wlan0 inet static
+    address $SERVER_IP
+    netmask 255.255.255.0
+EOF
+
+
+    # 5. hostapd Konfiguration schreiben (Das WLAN-Netz)
     sudo bash -c 'cat > /etc/hostapd/hostapd.conf' << EOF
 interface=wlan0
 driver=nl80211
 ssid=$SSID
 hw_mode=g
 channel=1
+country_code=DE
 wmm_enabled=0
 macaddr_acl=0
 auth_algs=1
@@ -72,13 +86,16 @@ wpa_pairwise=TKIP
 rsn_pairwise=CCMP
 EOF
 
-    # 5. dnsmasq Konfiguration schreiben (Vergibt IPs an die ESP32-Westen)
+    # 6. dnsmasq Konfiguration schreiben (Vergibt IPs an die ESP32-Westen)
     sudo bash -c 'cat > /etc/dnsmasq.conf' << EOF
 interface=wlan0
 dhcp-range=$IP_RANGE_LOW,$IP_RANGE_HIGH,255.255.255.0,12h
 EOF
 
-    # 6. Dienste aktivieren und starten
+    # 7. softlock ausstellen
+
+
+    # 8. Dienste aktivieren und starten
     sudo systemctl unmask hostapd
     sudo systemctl enable hostapd dnsmasq
     sudo systemctl restart hostapd
@@ -125,3 +142,6 @@ sudo apt install -y golang
 
 echo ""
 echo "/===== SETUP BEENDET =====/"
+echo "System wird neu gestartet..."
+sleep 5000
+sudo reboot
