@@ -59,12 +59,12 @@ EOF
     sudo systemctl disable systemd-resolved 2>/dev/null
 
     # 4. WLAN-Karte eine feste IP geben
-    sudo tee /etc/network/interfaces.d/wlan0 > /dev/null << EOF
-allow-hotplug wlan0
-iface wlan0 inet static
-    address $SERVER_IP
-    netmask 255.255.255.0
+    sudo tee /etc/udev/rules.d/99-wlan0-vars.rules > /dev/null << EOF
+SUBSYSTEM=="net", ACTION=="add", KERNEL=="wlan0", RUN+="/usr/sbin/ip addr add $SERVER_IP/24 dev wlan0"
 EOF
+
+    sudo udevadm control --reload-rules
+    sudo udevadm trigger
 
 
     # 5. hostapd Konfiguration schreiben (Das WLAN-Netz)
